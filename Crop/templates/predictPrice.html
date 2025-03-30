@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Prediction | KissanConnect</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Aclonica&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --green: #38d39f;
+            --dark-green: #2dbd8d;
+            --white: #fff;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --black: #212529;
+        }
+
+        * {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            text-transform: capitalize;
+            transition: all .2s linear;
+        }
+
+        html {
+            font-size: 62.5%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            padding-top: 80px;
+        }
+
+        /* Header/Navbar styles */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 2rem 8rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background-color: var(--green);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header .logo {
+            font-size: 2.5rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .header .logo i {
+            padding: 0 .5rem;
+        }
+
+        .header .navbar ul {
+            list-style-type: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .header .navbar ul li {
+            margin: 0 1.5rem;
+        }
+
+        .header .navbar ul li a {
+            font-size: 1.6rem;
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .header .navbar ul li a:hover {
+            opacity: 0.8;
+        }
+
+        /* Main content styles */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2.8rem;
+            color: var(--black);
+            margin-bottom: 3rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .selection-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            color: var(--dark-gray);
+            font-size: 1.4rem;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown select {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.4rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            appearance: none;
+            background-color: var(--white);
+            cursor: pointer;
+        }
+
+        .dropdown:after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--dark-gray);
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.4rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            background-color: var(--white);
+        }
+
+        .commodity-title {
+            font-size: 2.2rem;
+            color: var(--green);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .prediction-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .prediction-label {
+            font-size: 1.6rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--green);
+            margin: 1rem 0 2rem;
+        }
+
+        .product-description {
+            font-size: 1.4rem;
+            color: var(--dark-gray);
+            margin: 1.5rem 0;
+            line-height: 1.6;
+        }
+
+        .harvest-date {
+            font-size: 1.4rem;
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .harvest-date i {
+            color: var(--green);
+            margin-right: 0.5rem;
+        }
+
+        .price-info {
+            width: 100%;
+            max-width: 500px;
+            margin: 2rem auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .price-info tr:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        .price-info td {
+            padding: 1.5rem 2rem;
+            font-size: 1.6rem;
+        }
+
+        .price-info td:first-child {
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        .price-info td:last-child {
+            font-weight: 600;
+            color: var(--black);
+            text-align: right;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 3rem auto;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .action-button {
+            margin-top: 2rem;
+            padding: 1.2rem 3rem;
+            background-color: var(--green);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.6rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem 2rem;
+            }
+            
+            .header .logo {
+                font-size: 2rem;
+            }
+            
+            .header .navbar ul li a {
+                font-size: 1.4rem;
+            }
+            
+            .main-container {
+                padding: 2rem;
+            }
+            
+            .page-title {
+                font-size: 2.2rem;
+            }
+            
+            .selection-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">
+            <i class="fa-solid fa-wheat-awn"></i>KissanConnect
+        </a>
+
+        <nav class="navbar">
+            <ul>
+                <li><a href="#home">home</a></li>
+                {% comment %} <li><a href="#dashboard">dashboard</a></li> {% endcomment %}
+                <li><a href="#farmer.html">listing</a></li>
+                <li><a href="predictPrice.html">predict price</a></li>
+                <li><a href="#crop">crop health</a></li>
+                <li><a href="#contact">contact us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <h1 class="page-title">Agricultural Price Prediction</h1>
+        
+        <div class="selection-container">
+            <div class="form-group">
+                <label for="stateSelect">State</label>
+                <div class="dropdown">
+                    <select id="stateSelect" onchange="updateDistricts()">
+                        <option value="">Select State</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="karnataka">Karnataka</option>
+                        <option value="punjab">Punjab</option>
+                        <option value="tamilnadu">Tamil Nadu</option>
+                        <option value="uttarpradesh">Uttar Pradesh</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="districtSelect">District</label>
+                <div class="dropdown">
+                    <select id="districtSelect" onchange="updateMarkets()" disabled>
+                        <option value="">Select District</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="marketSelect">Market</label>
+                <div class="dropdown">
+                    <select id="marketSelect" onchange="updateCommodities()" disabled>
+                        <option value="">Select Market</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="commoditySelect">Commodity</label>
+                <div class="dropdown">
+                    <select id="commoditySelect" onchange="updatePriceInfo()" disabled>
+                        <option value="">Select Commodity</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dateSelect">Date</label>
+                <input type="date" id="dateSelect" class="date-input">
+            </div>
+        </div>
+
+        <h2 class="commodity-title" id="commodityName">Select a commodity</h2>
+
+        <div class="prediction-card">
+            <p class="prediction-label">Predicted Price</p>
+            <div class="prediction-value" id="predictedPrice">-</div>
+            <p class="product-description" id="productDescription">Select a commodity to view predicted price</p>
+            <div class="harvest-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="harvestDateText">Select date for prediction</span>
+            </div>
+        </div>
+
+        <table class="price-info">
+            <tr>
+                <td>Current Price</td>
+                <td id="currentPrice">-</td>
+            </tr>
+            <tr>
+                <td>Last Year's Price</td>
+                <td id="lastYearPrice">-</td>
+            </tr>
+            <tr>
+                <td>Price Trend</td>
+                <td id="priceTrend">-</td>
+            </tr>
+            <tr>
+                <td>Location</td>
+                <td id="locationText">Not specified</td>
+            </tr>
+        </table>
+
+        <h2 class="commodity-title" id="chartTitle">Price Trends</h2>
+
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <button class="action-button">Get Price Prediction</button>
+    </div>
+
+    <script>
+        // Location data with all market-commodity mappings
+        const locationData = {
+            Maharashtra: {
+                districts: {
+                    Jalgaon: [
+                        'Amalner', 'Bhusaval', 'Bodwad', 'Chalisgaon', 'Chopada', 
+                        'Dharangaon', 'Gopal Krishna Agro', 'J S K Agro Market', 
+                        'Jalgaon', 'Jalgaon(Masawat)', 'Jamner', 'Jamner(Neri)', 
+                        'Mahavir Agri Market', 'Pachora', 'Pachora(Bhadgaon)', 
+                        'Parola', 'Raver', 'Raver(Sauda)', 'Shantilal Jain Agro',
+                        'Yashika Agro Marketing', 'Yawal'
+                    ],
+                    Amarawati: [
+                        'Achalpur', 'Amarawati', 'Amrawati(Frui & Veg. Market)', 
+                        'Anajngaon', 'Chandur Bazar', 'Chandur Railway', 
+                        'Daryapur', 'Dhamngaon-Railway', 'Dharni', 'Morshi',
+                        'Nandgaon Khandeshwar', 'Shetkari Khushi Bazar', 'Varud',
+                        'Varud(Rajura Bazar)'
+                    ],
+                    Mumbai: [
+                        'Mumbai', 'Mumbai- Fruit Market', 'Vashi New Mumbai'
+                    ],
+                    Nashik: [
+                        'Chandvad', 'Devala', 'Dindori', 'Dindori(Vani)', 'Ghoti', 
+                        'Kalvan', 'Lasalgaon', 'Lasalgaon(Niphad)', 'Lasalgaon(Vinchur)', 
+                        'Malegaon', 'Malharshree Farmers Producer Co Ltd',
+                        'Mankamneshwar Farmar Producer CoLtd Sanchalit Mank', 'Manmad', 
+                        'Nampur', 'Nandgaon', 'Nashik(Devlali)', 'Nasik', 'Pimpalgaon',
+                        'Pimpalgaon Baswant(Saykheda)', 'Premium Krushi Utpanna Bazar', 
+                        'Satana', 'Shivsiddha Govind Producer Company Limited Sanchal',
+                        'Shree Rameshwar Krushi Market', 'Sinner', 'Suragana', 'Umrane', 
+                        'Yeola'
+                    ],
+                    Raigad: [
+                        'Alibagh', 'Karjat(Raigad)', 'Mahad', 'Mangaon', 'Murud', 
+                        'Panvel', 'Pen', 'Roha'
+                    ]
+                },
+                commodities: {
+                    // Jalgaon District Markets
+                    'Amalner': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Green Gram (Moong)(Whole)', 
+                        'Groundnut', 'Bengal Gram(Gram)(Whole)', 'Maize', 'Soyabean', 
+                        'Corriander seed', 'Ajwan', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Sunflower', 'Black Gram (Urd Beans)(Whole)', 
+                        'Chili Red', 'Jowar(Sorghum)', 'Cowpea (Lobia/Karamani)', 'Castor Seed', 
+                        'Onion', 'Mataki'
+                    ],
+                    'Bhusaval': [
+                        'Onion', 'Cauliflower', 'Carrot', 'Sweet Potato', 'Cabbage', 
+                        'Beetroot', 'Little gourd (Kundru)', 'Green Chilli', 'Banana - Green', 
+                        'Cucumbar(Kheera)', 'Raddish', 'Peas Wet', 'Bhindi(Ladies Finger)', 
+                        'Spinach', 'Chilly Capsicum', 'Bitter gourd', 'Bottle gourd', 'Tomato', 
+                        'Coriander(Leaves)', 'Methi(Leaves)', 'Potato', 'Brinjal', 'Guar', 
+                        'Drumstick', 'Onion Green', 'Wheat', 'Marigold(Calcutta)', 
+                        'Mango (Raw-Ripe)', 'Ridgeguard(Tori)', 'Lime', 'Karbuja(Musk Melon)', 
+                        'Jack Fruit', 'Bengal Gram(Gram)(Whole)', 'Jowar(Sorghum)', 'Grapes', 
+                        'Garlic', 'Tamarind Fruit', 'Papaya', 'Water Melon', 
+                        'Black Gram (Urd Beans)(Whole)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Beans', 'Green Gram (Moong)(Whole)', 'Sweet Pumpkin', 'Ginger(Green)', 
+                        'Leafy Vegetable', 'Mango', 'Bajra(Pearl Millet/Cumbu)', 'Maize', 
+                        'Chow Chow', 'Snakeguard', 'Elephant Yam (Suran)'
+                    ],
+                    'Bodwad': [
+                        'Wheat', 'Bengal Gram(Gram)(Whole)', 'Maize', 'Arhar (Tur/Red Gram)(Whole)'
+                    ],
+                    'Chalisgaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Bengal Gram(Gram)(Whole)', 
+                        'Jowar(Sorghum)', 'Maize', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Onion', 'Soyabean', 
+                        'Black Gram (Urd Beans)(Whole)', 'Black Gram Dal (Urd Dal)', 
+                        'Castor Seed', 'Rice', 'Mataki', 'Sunflower', 'Groundnut', 
+                        'Sesamum(Sesame,Gingelly,Til)'
+                    ],
+                    'Chopada': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Green Gram (Moong)(Whole)', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Groundnut', 'Bengal Gram(Gram)(Whole)', 'Jowar(Sorghum)', 
+                        'Cowpea (Lobia/Karamani)', 'Maize', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Sunflower', 'Soyabean', 'Methi Seeds', 'Mataki', 'Ajwan'
+                    ],
+                    'Dharangaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Maize', 'Soyabean', 
+                        'Bengal Gram(Gram)(Whole)', 'Jowar(Sorghum)', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Green Gram (Moong)(Whole)'
+                    ],
+                    'Gopal Krishna Agro': [
+                        'Cotton'
+                    ],
+                    'J S K Agro Market': [
+                        'Soyabean', 'Cotton', 'Maize'
+                    ],
+                    'Jalgaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 'Cauliflower', 
+                        'Jowar(Sorghum)', 'Soyabean', 'Ginger(Green)', 'Carrot', 
+                        'Sweet Potato', 'Cabbage', 'Beetroot', 'Little gourd (Kundru)', 
+                        'Green Chilli', 'Cucumbar(Kheera)', 'Raddish', 'Bhindi(Ladies Finger)', 
+                        'Sweet Pumpkin', 'Mango (Raw-Ripe)', 'Drumstick', 'Spinach', 
+                        'Bitter gourd', 'Tomato', 'Coriander(Leaves)', 'Methi(Leaves)', 
+                        'Potato', 'Arhar (Tur/Red Gram)(Whole)', 'Brinjal', 'Guar', 
+                        'Onion Green', 'Gur(Jaggery)', 'Bengal Gram(Gram)(Whole)', 
+                        'Garlic', 'Seetapal', 'Grapes', 'Mango', 'Maize', 
+                        'Green Gram (Moong)(Whole)', 'Chilly Capsicum', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Banana', 'Papaya', 'Apple', 'Lime', 'Pomegranate', 'Guava', 
+                        'Jamun(Narale Hannu)', 'Orange', 'Ginger(Dry)', 'Tamarind Fruit', 
+                        'Chikoos(Sapota)', 'Bottle gourd', 'Corriander seed', 'Groundnut', 
+                        'Peas Wet', 'Marigold(Calcutta)', 'Ridgeguard(Tori)', 'Sunflower', 
+                        'Methi Seeds'
+                    ],
+                    'Jalgaon(Masawat)': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Jowar(Sorghum)', 'Wheat', 'Maize', 
+                        'Bengal Gram(Gram)(Whole)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Soyabean', 'Black Gram (Urd Beans)(Whole)'
+                    ],
+                    'Jamner': [
+                        'Maize', 'Cotton', 'Jowar(Sorghum)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Bengal Gram(Gram)(Whole)', 'Wheat', 'Soyabean'
+                    ],
+                    'Jamner(Neri)': [
+                        'Jowar(Sorghum)', 'Maize', 'Arhar (Tur/Red Gram)(Whole)', 'Cotton'
+                    ],
+                    'Mahavir Agri Market': [
+                        'Cotton', 'Maize'
+                    ],
+                    'Pachora': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Bengal Gram(Gram)(Whole)', 
+                        'Jowar(Sorghum)', 'Maize', 'Soyabean', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Groundnut', 'Sunflower', 'Rice', 'Sesamum(Sesame,Gingelly,Til)'
+                    ],
+                    'Pachora(Bhadgaon)': [
+                        'Jowar(Sorghum)', 'Maize', 'Bajra(Pearl Millet/Cumbu)', 'Soyabean'
+                    ],
+                    'Parola': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Bengal Gram(Gram)(Whole)', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Jowar(Sorghum)', 
+                        'Green Gram (Moong)(Whole)', 'Black Gram (Urd Beans)(Whole)', 'Maize'
+                    ],
+                    'Raver': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Bengal Gram(Gram)(Whole)', 
+                        'Jowar(Sorghum)', 'Maize', 'Green Gram (Moong)(Whole)', 
+                        'Black Gram (Urd Beans)(Whole)', 'Banana', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Rice', 'Cowpea (Lobia/Karamani)', 'Soyabean'
+                    ],
+                    'Raver(Sauda)': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Maize', 'Wheat', 'Bengal Gram(Gram)(Whole)', 
+                        'Jowar(Sorghum)', 'Arhar (Tur/Red Gram)(Whole)'
+                    ],
+                    'Shantilal Jain Agro': [
+                        'Cotton', 'Maize', 'Groundnut', 'Mustard'
+                    ],
+                    'Yashika Agro Marketing': [
+                        'Maize'
+                    ],
+                    'Yawal': [
+                        'Cotton', 'Maize', 'Bengal Gram(Gram)(Whole)', 'Wheat', 'Onion', 
+                        'Jowar(Sorghum)', 'Bajra(Pearl Millet/Cumbu)', 'Banana', 'Groundnut', 
+                        'Black Gram (Urd Beans)(Whole)', 'Green Gram (Moong)(Whole)', 'Soyabean', 
+                        'Arhar (Tur/Red Gram)(Whole)'
+                    ],
+                    
+                    // Amarawati District Markets
+                    'Achalpur': [
+                        'Wheat', 'Soyabean', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Bengal Gram(Gram)(Whole)', 
+                        'Jowar(Sorghum)', 'Maize', 'Cotton', 'Bajra(Pearl Millet/Cumbu)', 
+                        'Groundnut', 'Sesamum(Sesame,Gingelly,Til)', 
+                        'Black Gram (Urd Beans)(Whole)'
+                    ],
+                    'Amarawati': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Groundnut', 'Jowar(Sorghum)', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 
+                        'Maize', 'Arhar (Tur/Red Gram)(Whole)', 'Cotton', 'Cucumbar(Kheera)', 
+                        'Onion', 'Linseed', 'Bitter gourd', 'Chilly Capsicum', 'Sunflower', 
+                        'Spinach', 'Cabbage', 'Carrot', 'Beetroot', 'Pumpkin', 'Green Chilli', 
+                        'Garlic', 'Chikoos(Sapota)', 'Tomato', 'Coriander(Leaves)', 'Potato', 
+                        'Guar', 'Bhindi(Ladies Finger)', 'Brinjal', 'Ginger(Dry)', 'Safflower', 
+                        'Peas Wet', 'Cauliflower'
+                    ],
+                    'Amrawati(Frui & Veg. Market)': [
+                        'Garlic', 'Cauliflower', 'Onion', 'Ginger(Green)', 'Carrot', 'Cabbage', 
+                        'Beetroot', 'Cucumbar(Kheera)', 'Bhindi(Ladies Finger)', 'Green Chilli', 
+                        'Spinach', 'Chilly Capsicum', 'Bitter gourd', 'Pumpkin', 'Tomato', 
+                        'Coriander(Leaves)', 'Methi(Leaves)', 'Potato', 'Brinjal', 'Guar', 
+                        'Seetapal', 'Grapes', 'Mango', 'Pineapple', 'Mango (Raw-Ripe)', 
+                        'Orange', 'Papaya', 'Apple', 'Chikoos(Sapota)', 'Guava', 'Amla(Nelli Kai)', 
+                        'Pomegranate', 'Lime', 'Peas Wet', 'Karbuja(Musk Melon)', 'Ginger(Dry)', 
+                        'Jamun(Narale Hannu)', 'Maize', 'Water Melon', 'Sugarcane'
+                    ],
+                    'Anajngaon': [
+                        'Jowar(Sorghum)', 'Ox', 'She Buffalo', 'Goat', 'Wheat', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Soyabean', 'Bengal Gram(Gram)(Whole)', 
+                        'Cotton', 'Banana', 'Chili Red', 'Cow', 'Black Gram (Urd Beans)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Sesamum(Sesame,Gingelly,Til)', 'Maize'
+                    ],
+                    'Chandur Bazar': [
+                        'Wheat', 'Jowar(Sorghum)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Maize', 'Bajra(Pearl Millet/Cumbu)', 
+                        'Black Gram (Urd Beans)(Whole)', 'Green Gram (Moong)(Whole)', 
+                        'Sesamum(Sesame,Gingelly,Til)'
+                    ],
+                    'Chandur Railway': [
+                        'Arhar (Tur/Red Gram)(Whole)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 
+                        'Wheat', 'Green Gram (Moong)(Whole)', 'Jowar(Sorghum)'
+                    ],
+                    'Daryapur': [
+                        'Jowar(Sorghum)', 'Soyabean', 'Arhar (Tur/Red Gram)(Whole)', 'Ox', 
+                        'Green Gram (Moong)(Whole)', 'Bengal Gram(Gram)(Whole)', 'Wheat', 'Cow', 
+                        'Black Gram (Urd Beans)(Whole)', 'She Buffalo', 'Cotton', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Safflower', 'Ajwan'
+                    ],
+                    'Dhamngaon-Railway': [
+                        'Sesamum(Sesame,Gingelly,Til)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 
+                        'Wheat', 'Green Gram (Moong)(Whole)', 'Cotton', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Jowar(Sorghum)'
+                    ],
+                    'Dharni': [
+                        'Wheat', 'Green Gram (Moong)(Whole)', 'Groundnut', 'Cotton', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Soyabean', 'Maize', 'Jowar(Sorghum)'
+                    ],
+                    'Morshi': [
+                        'Bengal Gram(Gram)(Whole)', 'Wheat', 'Potato', 'Onion', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Soyabean', 'Ginger(Green)', 
+                        'Chili Red', 'Turmeric', 'Maize', 'Jowar(Sorghum)', 'Groundnut', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Ginger(Dry)', 'Green Gram (Moong)(Whole)'
+                    ],
+                    'Nandgaon Khandeshwar': [
+                        'Wheat', 'Sesamum(Sesame,Gingelly,Til)', 'Bengal Gram(Gram)(Whole)', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Soyabean', 'Jowar(Sorghum)', 
+                        'Corriander seed', 'Green Gram (Moong)(Whole)', 
+                        'Black Gram (Urd Beans)(Whole)'
+                    ],
+                    'Shetkari Khushi Bazar': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Bengal Gram(Gram)(Whole)', 
+                        'Black Gram (Urd Beans)(Whole)', 'Soyabean', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Groundnut', 'Jowar(Sorghum)', 
+                        'Green Gram (Moong)(Whole)'
+                    ],
+                    'Varud': [
+                        'Bengal Gram(Gram)(Whole)', 'Arhar (Tur/Red Gram)(Whole)', 'Cotton', 
+                        'Orange', 'Maize', 'Jowar(Sorghum)', 'Soyabean', 'Mustard', 'Wheat'
+                    ],
+                    'Varud(Rajura Bazar)': [
+                        'Soyabean', 'Goat', 'She Buffalo', 'Ox', 'Green Chilli', 'Wheat', 
+                        'Bengal Gram(Gram)(Whole)', 'Castor Seed', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Mustard', 'Jowar(Sorghum)', 'Cow', 'Maize', 'Chili Red', 'Orange'
+                    ],
+                    
+                    // Mumbai District Markets
+                    'Mumbai': [
+                        'Cashewnuts', 'Bajra(Pearl Millet/Cumbu)', 'Ginger(Dry)', 'Chili Red', 
+                        'Cauliflower', 'Cardamoms', 'Green Gram (Moong)(Whole)', 'Rice', 
+                        'Mustard', 'Bengal Gram(Gram)(Whole)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Jowar(Sorghum)', 'Maize', 'Corriander seed', 'Ginger(Green)', 'Carrot', 
+                        'Sweet Potato', 'Snakeguard', 'Cabbage', 'Beetroot', 
+                        'French Beans (Frasbean)', 'Elephant Yam (Suran)', 'Sabu Dan', 
+                        'Cowpea (Lobia/Karamani)', 'Beans', 'Ground Nut Seed', 
+                        'Pointed gourd (Parval)', 'Little gourd (Kundru)', 'Green Chilli', 
+                        'Banana - Green', 'Kulthi(Horse Gram)', 'Coconut', 
+                        'Arecanut(Betelnut/Supari)', 'Soanf', 'Cucumbar(Kheera)', 
+                        'Black Gram Dal (Urd Dal)', 'Green Gram Dal (Moong Dal)', 
+                        'Arhar Dal(Tur Dal)', 'Bengal Gram Dal (Chana Dal)', 'Masur Dal', 
+                        'Tamarind Fruit', 'Raddish', 'Ridgeguard(Tori)', 'Peas Wet', 'Ghee', 
+                        'Bhindi(Ladies Finger)', 'Sweet Pumpkin', 'Mango (Raw-Ripe)', 
+                        'Drumstick', 'Spinach', 'Lentil (Masur)(Whole)', 'Chilly Capsicum', 
+                        'Bitter gourd', 'Pumpkin', 'Bottle gourd', 'Tomato', 
+                        'Coriander(Leaves)', 'Sugar', 'Methi Seeds', 'Methi(Leaves)', 
+                        'Cummin Seed(Jeera)', 'Green Peas', 'Black pepper', 'Brinjal', 'Guar', 
+                        'Gur(Jaggery)', 'Mint(Pudina)', 'Cinamon(Dalchini)', 'Almond(Badam)', 
+                        'Onion Green', 'Sesamum(Sesame,Gingelly,Til)', 'Turmeric', 'Wheat', 
+                        'Pineapple', 'Lime', 'Arhar (Tur/Red Gram)(Whole)', 'Groundnut', 
+                        'Pomegranate', 'Guava', 'Onion', 'Orange', 'Apple', 'Papaya', 
+                        'Chikoos(Sapota)', 'Karbuja(Musk Melon)', 'Pear(Marasebu)', 'Seetapal', 
+                        'Peach', 'Water Melon', 'Grapes'
+                    ],
+                    'Mumbai- Fruit Market': [
+                        'Papaya', 'Pineapple', 'Apple', 'Seetapal', 'Grapes', 'Mango', 
+                        'Banana', 'Orange', 'Chikoos(Sapota)', 'Water Melon', 'Guava', 
+                        'Karbuja(Musk Melon)', 'Pomegranate', 'Jamun(Narale Hannu)', 
+                        'Pear(Marasebu)', 'Cherry', 'Plum', 'Peach', 'Litchi'
+                    ],
+                    'Vashi New Mumbai': [
+                        'Onion', 'Potato'
+                    ],
+                    
+                    // Nashik District Markets
+                    'Chandvad': [
+                        'Onion', 'Bhindi(Ladies Finger)', 'Bitter gourd', 'Tomato', 
+                        'Coriander(Leaves)', 'Brinjal', 'Guar', 'Cucumbar(Kheera)', 
+                        'Methi(Leaves)', 'Soyabean', 'Maize', 'Marigold(Calcutta)', 
+                        'Onion Green'
+                    ],
+                    'Devala': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 'Jowar(Sorghum)', 
+                        'Bengal Gram(Gram)(Whole)', 'Maize', 'Cowpea (Lobia/Karamani)', 
+                        'Tamarind Fruit', 'Arhar (Tur/Red Gram)(Whole)', 'Kulthi(Horse Gram)', 
+                        'Green Gram (Moong)(Whole)', 'Black Gram (Urd Beans)(Whole)', 'Cabbage', 
+                        'Coriander(Leaves)', 'Methi(Leaves)', 'Rice', 'Mataki', 'Guar', 
+                        'Green Chilli', 'Bhindi(Ladies Finger)', 'Jute', 'Corriander seed', 
+                        'Methi Seeds', 'Ridgeguard(Tori)', 'Drumstick', 'Tomato', 
+                        'Cucumbar(Kheera)', 'Lime', 'Green Peas'
+                    ],
+                    'Dindori': [
+                        'Onion', 'Wheat', 'Soyabean', 'Rice', 'Maize', 'Tomato', 
+                        'Bengal Gram(Gram)(Whole)', 'Lentil (Masur)(Whole)', 
+                        'Bajra(Pearl Millet/Cumbu)'
+                    ],
+                    'Dindori(Vani)': [
+                        'Onion', 'Tomato'
+                    ],
+                    'Ghoti': [
+                        'Cauliflower', 'Cabbage', 'Cucumbar(Kheera)', 'Chilly Capsicum', 
+                        'Tomato', 'Brinjal', 'Paddy(Dhan)(Common)', 'Bitter gourd', 
+                        'Bhindi(Ladies Finger)', 'Wheat', 'Sweet Pumpkin', 'Bottle gourd'
+                    ],
+                    'Kalvan': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 'Maize', 'Groundnut', 
+                        'Soyabean', 'Tamarind Fruit', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Green Gram (Moong)(Whole)', 'Bengal Gram(Gram)(Whole)', 'Sunflower', 
+                        'Jowar(Sorghum)', 'Rice'
+                    ],
+                    'Lasalgaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 
+                        'Green Gram (Moong)(Whole)', 'Groundnut', 'Jowar(Sorghum)', 
+                        'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Grapes', 
+                        'Black Gram (Urd Beans)(Whole)', 'Sunflower', 'Ridgeguard(Tori)', 
+                        'Drumstick', 'Peas Wet', 'Cucumbar(Kheera)', 'Pomegranate', 'Guava', 
+                        'Spinach', 'Onion Green', 'Coriander(Leaves)', 'Rice', 'Brinjal', 
+                        'Tomato', 'Bitter gourd', 'Bottle gourd', 'Beans', 'Green Chilli', 
+                        'Chilly Capsicum', 'Bhindi(Ladies Finger)', 'Corriander seed', 'Carrot', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Methi(Leaves)'
+                    ],
+                    'Lasalgaon(Niphad)': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 
+                        'Green Gram (Moong)(Whole)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Jowar(Sorghum)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Corriander seed', 'Castor Seed', 
+                        'Tamarind Fruit', 'Groundnut', 'Methi Seeds', 'Rice', 'Sunflower', 
+                        'Mustard', 'Cowpea (Lobia/Karamani)', 'Safflower', 'Green Peas', 
+                        'Sesamum(Sesame,Gingelly,Til)', 'Grapes', 'Jute', 'Kulthi(Horse Gram)', 
+                        'Mataki'
+                    ],
+                    'Lasalgaon(Vinchur)': [
+                        'Wheat', 'Onion', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 
+                        'Green Gram (Moong)(Whole)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Bajra(Pearl Millet/Cumbu)'
+                    ],
+                    'Malegaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Sesamum(Sesame,Gingelly,Til)', 
+                        'Jowar(Sorghum)', 'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Kulthi(Horse Gram)', 
+                        'Green Gram (Moong)(Whole)', 'Cowpea (Lobia/Karamani)', 'Mataki', 
+                        'Sunflower', 'Black Gram (Urd Beans)(Whole)', 'Castor Seed', 
+                        'Groundnut', 'Onion'
+                    ],
+                    'Malharshree Farmers Producer Co Ltd': [
+                        'Onion', 'Cow'
+                    ],
+                    'Mankamneshwar Farmar Producer CoLtd Sanchalit Mank': [
+                        'Onion', 'Soyabean', 'Green Gram (Moong)(Whole)'
+                    ],
+                    'Manmad': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 'Jowar(Sorghum)', 
+                        'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 'Marigold(Calcutta)', 
+                        'Green Gram (Moong)(Whole)', 'Kulthi(Horse Gram)', 'Cabbage', 
+                        'Cauliflower', 'Coriander(Leaves)', 'Methi(Leaves)', 'Brinjal', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Bitter gourd', 'Guar', 'Tomato', 
+                        'Green Chilli', 'Black Gram (Urd Beans)(Whole)', 
+                        'Bhindi(Ladies Finger)', 'Mataki', 'Onion Green', 'Drumstick'
+                    ],
+                    'Nampur': [
+                        'Onion', 'Wheat', 'Groundnut', 'Kulthi(Horse Gram)', 'Cabbage', 
+                        'Ridgeguard(Tori)', 'Raddish', 'Sweet Pumpkin', 'Pomegranate', 
+                        'Bajra(Pearl Millet/Cumbu)', 'Coriander(Leaves)', 'Rice', 'Maize', 
+                        'Brinjal', 'Jowar(Sorghum)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Bengal Gram(Gram)(Whole)', 'Guar', 'Papaya', 'Tomato', 'Bitter gourd', 
+                        'Green Chilli', 'Mataki', 'Cowpea (Lobia/Karamani)', 
+                        'Black Gram (Urd Beans)(Whole)', 'Bhindi(Ladies Finger)', 
+                        'Green Gram (Moong)(Whole)', 'Soyabean', 'Sunflower', 'Methi Seeds', 
+                        'Lime', 'Cauliflower', 'Beans', 'Corriander seed', 'Cucumbar(Kheera)', 
+                        'Guava', 'Onion Green', 'Lentil (Masur)(Whole)', 'Methi(Leaves)'
+                    ],
+                    'Nandgaon': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 'Jowar(Sorghum)', 
+                        'Bengal Gram(Gram)(Whole)', 'Soyabean', 'Maize', 
+                        'Green Gram (Moong)(Whole)', 'Tamarind Fruit', 
+                        'Arhar (Tur/Red Gram)(Whole)', 'Groundnut', 'Sunflower', 
+                        'Kulthi(Horse Gram)'
+                    ],
+                    'Nashik(Devlali)': [
+                        'Raddish', 'Spinach', 'Coriander(Leaves)', 'Methi(Leaves)', 
+                        'Onion Green', 'Mint(Pudina)', 'Chikoos(Sapota)'
+                    ],
+                    'Nasik': [
+                        'Garlic', 'Cauliflower', 'Onion', 'Groundnut', 'Ginger(Green)', 
+                        'Carrot', 'Cabbage', 'Beans', 'Green Chilli', 'Cucumbar(Kheera)', 
+                        'Bhindi(Ladies Finger)', 'Ridgeguard(Tori)', 'Peas Wet', 
+                        'Sweet Pumpkin', 'Chilly Capsicum', 'Bitter gourd', 'Bottle gourd', 
+                        'Tomato', 'Coriander(Leaves)', 'Methi(Leaves)', 'Potato', 'Brinjal', 
+                        'Guar', 'Onion Green', 'Tender Coconut', 'Seetapal', 'Mango', 'Grapes', 
+                        'Drumstick', 'Spinach', 'Raddish', 'Banana', 'Orange', 'Papaya', 
+                        'Apple', 'Chikoos(Sapota)', 'Lime', 'Guava', 'Pomegranate', 
+                        'Sweet Potato', 'Mango (Raw-Ripe)', 'Karbuja(Musk Melon)', 
+                        'Ginger(Dry)', 'Mint(Pudina)', 'Pineapple', 'Pear(Marasebu)', 
+                        'Water Melon', 'Amla(Nelli Kai)', 'Plum'
+                    ],
+                    'Pimpalgaon': [
+                        'Onion', 'Tomato', 'Pomegranate'
+                    ],
+                    'Pimpalgaon Baswant(Saykheda)': [
+                        'Onion'
+                    ],
+                    'Premium Krushi Utpanna Bazar': [
+                        'Onion', 'Cauliflower', 'Bitter gourd', 'Green Chilli', 'Bottle gourd', 
+                        'Long Melon(Kakri)', 'Beetroot', 'Brinjal', 'Carrot', 'Cabbage'
+                    ],
+                    'Satana': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Wheat', 'Onion', 
+                        'Bengal Gram(Gram)(Whole)', 'Maize', 'Groundnut', 'Pomegranate', 
+                        'Green Gram (Moong)(Whole)', 'Tamarind Fruit', 
+                        'Arhar (Tur/Red Gram)(Whole)'
+                    ],
+                    'Shivsiddha Govind Producer Company Limited Sanchal': [
+                        'Onion', 'Maize', 'Soyabean'
+                    ],
+                    'Shree Rameshwar Krushi Market': [
+                        'Onion', 'Tomato', 'Soyabean'
+                    ],
+                    'Sinner': [
+                        'Onion', 'Bajra(Pearl Millet/Cumbu)', 'Maize', 
+                        'Bengal Gram(Gram)(Whole)', 'Green Peas', 'Rice', 
+                        'Green Gram (Moong)(Whole)', 'Soyabean', 'Beans', 'Wheat', 
+                        'Jowar(Sorghum)', 'Castor Seed', 'Groundnut', 'Sunflower', 
+                        'Tamarind Fruit', 'Arhar (Tur/Red Gram)(Whole)', 'Tomato', 
+                        'Black Gram (Urd Beans)(Whole)', 'Mataki', 'Kulthi(Horse Gram)', 
+                        'Mustard', 'Corriander seed', 'Methi Seeds', 
+                        'Cowpea (Lobia/Karamani)'
+                    ],
+                    'Suragana': [
+                        'Paddy(Dhan)(Common)', 'Onion'
+                    ],
+                    'Umrane': [
+                        'Onion'
+                    ],
+                    'Yeola': [
+                        'Bajra(Pearl Millet/Cumbu)', 'Onion', 'Soyabean', 'Wheat', 'Maize', 
+                        'Jowar(Sorghum)', 'Green Gram (Moong)(Whole)', 
+                        'Bengal Gram(Gram)(Whole)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Groundnut', 'Black Gram (Urd Beans)(Whole)', 'Mataki', 
+                        'Kulthi(Horse Gram)', 'Sunflower'
+                    ],
+                    
+                    // Raigad District Markets
+                    'Alibagh': [
+                        'Rice', 'Paddy(Dhan)(Common)'
+                    ],
+                    'Karjat(Raigad)': [
+                        'Rice', 'Paddy(Dhan)(Common)', 'Wheat', 'Onion', 'Groundnut', 
+                        'Kulthi(Horse Gram)', 'Corriander seed', 'Sunflower', 'Soyabean', 
+                        'Chili Red', 'Bajra(Pearl Millet/Cumbu)', 'Tamarind Fruit', 'Maize', 
+                        'Jowar(Sorghum)', 'Arhar (Tur/Red Gram)(Whole)', 
+                        'Bengal Gram(Gram)(Whole)', 'Black Gram (Urd Beans)(Whole)', 
+                        'Cowpea (Lobia/Karamani)', 'Other Pulses', 'Green Gram (Moong)(Whole)', 
+                        'Mataki', 'Safflower'
+                    ],
+                    'Mahad': [
+                        'Paddy(Dhan)(Common)'
+                    ],
+                    'Mangaon': [
+                        'Rice', 'Paddy(Dhan)(Common)', 'Ragi (Finger Millet)'
+                    ],
+                    'Murud': [
+                        'Rice', 'Paddy(Dhan)(Common)'
+                    ],
+                    'Panvel': [
+                        'Cauliflower', 'Carrot', 'Snakeguard', 'Cabbage', 'Beans', 
+                        'Little gourd (Kundru)', 'Cucumbar(Kheera)', 'Bhindi(Ladies Finger)', 
+                        'Bitter gourd', 'Bottle gourd', 'Tomato', 'Brinjal', 'Guar', 
+                        'Ridgeguard(Tori)', 'Ginger(Green)', 'Sweet Potato', 'Beetroot', 
+                        'Drumstick', 'Elephant Yam (Suran)', 'Chilly Capsicum', 
+                        'Mango (Raw-Ripe)', 'Spinach', 'Coriander(Leaves)', 'Methi(Leaves)', 
+                        'Ginger(Dry)'
+                    ],
+                    'Pen': [
+                        'Cabbage', 'Cucumbar(Kheera)', 'Bhindi(Ladies Finger)', 
+                        'Ridgeguard(Tori)', 'Chilly Capsicum', 'Bitter gourd', 'Bottle gourd', 
+                        'Tomato', 'Brinjal', 'Guar', 'Onion', 'Drumstick', 'Potato', 
+                        'Sweet Pumpkin', 'Leafy Vegetable', 'Paddy(Dhan)(Common)', 'Peas Wet', 
+                        'Rice', 'Cauliflower', 'French Beans (Frasbean)', 'Little gourd (Kundru)', 
+                        'Beans', 'Snakeguard', 'Carrot', 'Sweet Potato', 
+                        'Elephant Yam (Suran)', 'Coriander(Leaves)'
+                    ],
+                    'Roha': [
+                        'Paddy(Dhan)(Common)'
+                    ]
+                }
+            },
+            karnataka: {
+                districts: {
+                    bangalore: ['City Market', 'KR Market', 'Yeshwanthpur'],
+                    mysore: ['Mysore Mandi', 'Nanjangud'],
+                    belgaum: ['Belgaum APMC', 'Khanapur']
+                },
+                commodities: {
+                    'City Market': ['Rice', 'Ragi', 'Tomato'],
+                    'KR Market': ['Onion', 'Potato', 'Carrot']
+                }
+            }
+        };
+
+        // Price data for commodities (sample data - you can expand this)
+        // const priceData = {
+        //     'Wheat': {
+        //         predicted: 2000,
+        //         current: 1900,
+        //         lastYear: 2100,
+        //         trend: "Down",
+        //         chartData: [1950, 1850, 1900, 2000, 1750, 2100, 1800],
+        //         description: "High quality wheat suitable for chapati and bread"
+        //     },
+        //     'Soyabean': {
+        //         predicted: 3500,
+        //         current: 3400,
+        //         lastYear: 3600,
+        //         trend: "Down",
+        //         chartData: [3700, 3650, 3600, 3550, 3500, 3450, 3400],
+        //         description: "Premium soyabean with high protein content"
+        //     },
+        //     'Tomato': {
+        //         predicted: 45,
+        //         current: 40,
+        //         lastYear: 50,
+        //         trend: "Down",
+        //         chartData: [55, 50, 45, 40, 35, 40, 45],
+        //         description: "Fresh tomatoes from local farms"
+        //     },
+        //     'Onion': {
+        //         predicted: 30,
+        //         current: 28,
+        //         lastYear: 35,
+        //         trend: "Down",
+        //         chartData: [40, 38, 35, 32, 30, 28, 30],
+        //         description: "Red onions with good shelf life"
+        //     },
+        //     'Potato': {
+        //         predicted: 25,
+        //         current: 22,
+        //         lastYear: 28,
+        //         trend: "Down",
+        //         chartData: [30, 28, 26, 24, 22, 23, 25],
+        //         description: "Fresh potatoes suitable for all culinary uses"
+        //     },
+        //     // Add more commodities with their price data as needed
+        //     'Bajra(Pearl Millet/Cumbu)': {
+        //         predicted: 1800,
+        //         current: 1750,
+        //         lastYear: 1900,
+        //         trend: "Down",
+        //         chartData: [2000, 1950, 1900, 1850, 1800, 1750, 1800],
+        //         description: "Pearl millet, a staple in many regions"
+        //     },
+        //     'Green Gram (Moong)(Whole)': {
+        //         predicted: 6500,
+        //         current: 6300,
+        //         lastYear: 6800,
+        //         trend: "Down",
+        //         chartData: [7000, 6900, 6800, 6700, 6600, 6500, 6300],
+        //         description: "Whole green gram, rich in protein"
+        //     },
+        //     'Groundnut': {
+        //         predicted: 5200,
+        //         current: 5100,
+        //         lastYear: 5400,
+        //         trend: "Down",
+        //         chartData: [5500, 5450, 5400, 5350, 5300, 5250, 5200],
+        //         description: "High quality groundnuts with good oil content"
+        //     },
+        //     'Bengal Gram(Gram)(Whole)': {
+        //         predicted: 4800,
+        //         current: 4700,
+        //         lastYear: 5000,
+        //         trend: "Down",
+        //         chartData: [5100, 5000, 4900, 4800, 4700, 4600, 4700],
+        //         description: "Whole Bengal gram, used for various dishes"
+        //     },
+        //     'Maize': {
+        //         predicted: 1850,
+        //         current: 1800,
+        //         lastYear: 1950,
+        //         trend: "Down",
+        //         chartData: [2000, 1950, 1900, 1850, 1800, 1750, 1800],
+        //         description: "Quality maize for animal feed and human consumption"
+        //     },
+        //     'Arhar (Tur/Red Gram)(Whole)': {
+        //         predicted: 6800,
+        //         current: 6700,
+        //         lastYear: 7000,
+        //         trend: "Down",
+        //         chartData: [7200, 7100, 7000, 6900, 6800, 6700, 6800],
+        //         description: "Whole red gram, a popular pulse in India"
+        //     }
+        // };
+
+        let priceChart;
+
+        // Initialize the chart
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateSelect').value = today;
+            
+            // Initialize empty chart
+            initializeChart([0, 0, 0, 0, 0, 0, 0], "Select a commodity");
+        });
+
+        // Update districts based on selected state
+        function updateDistricts() {
+            const stateSelect = document.getElementById('stateSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const selectedState = stateSelect.value;
+            
+            districtSelect.innerHTML = '<option value="">Select District</option>';
+            districtSelect.disabled = !selectedState;
+            
+            if (selectedState && locationData[selectedState]) {
+                const districts = locationData[selectedState].districts;
+                for (const districtId in districts) {
+                    const option = document.createElement('option');
+                    option.value = districtId;
+                    option.textContent = districtId.charAt(0).toUpperCase() + districtId.slice(1);
+                    districtSelect.appendChild(option);
+                }
+            }
+            
+            // Reset dependent dropdowns
+            document.getElementById('marketSelect').innerHTML = '<option value="">Select Market</option>';
+            document.getElementById('marketSelect').disabled = true;
+            document.getElementById('commoditySelect').innerHTML = '<option value="">Select Commodity</option>';
+            document.getElementById('commoditySelect').disabled = true;
+            
+            // Reset price info
+            resetPriceInfo();
+        }
+
+        // Update markets based on selected district
+        function updateMarkets() {
+            const stateSelect = document.getElementById('stateSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const marketSelect = document.getElementById('marketSelect');
+            const selectedState = stateSelect.value;
+            const selectedDistrict = districtSelect.value;
+            
+            marketSelect.innerHTML = '<option value="">Select Market</option>';
+            marketSelect.disabled = !(selectedState && selectedDistrict);
+            
+            if (selectedState && selectedDistrict && 
+                locationData[selectedState] && 
+                locationData[selectedState].districts[selectedDistrict]) {
+                
+                const markets = locationData[selectedState].districts[selectedDistrict];
+                markets.forEach(market => {
+                    const option = document.createElement('option');
+                    option.value = market;
+                    option.textContent = market;
+                    marketSelect.appendChild(option);
+                });
+            }
+            
+            // Reset dependent dropdown
+            document.getElementById('commoditySelect').innerHTML = '<option value="">Select Commodity</option>';
+            document.getElementById('commoditySelect').disabled = true;
+            
+            // Reset price info
+            resetPriceInfo();
+        }
+
+        // Update commodities based on selected market
+        function updateCommodities() {
+            const stateSelect = document.getElementById('stateSelect');
+            const marketSelect = document.getElementById('marketSelect');
+            const commoditySelect = document.getElementById('commoditySelect');
+            const selectedState = stateSelect.value;
+            const selectedMarket = marketSelect.value;
+            
+            commoditySelect.innerHTML = '<option value="">Select Commodity</option>';
+            commoditySelect.disabled = !(selectedState && selectedMarket);
+            
+            if (selectedState && selectedMarket && 
+                locationData[selectedState] && 
+                locationData[selectedState].commodities[selectedMarket]) {
+                
+                const commodities = locationData[selectedState].commodities[selectedMarket];
+                commodities.forEach(commodity => {
+                    const option = document.createElement('option');
+                    option.value = commodity;
+                    option.textContent = commodity;
+                    commoditySelect.appendChild(option);
+                });
+            }
+            
+            // Reset price info
+            resetPriceInfo();
+        }
+
+        // Update price information when commodity is selected
+        function updatePriceInfo() {
+            const stateSelect = document.getElementById('stateSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const marketSelect = document.getElementById('marketSelect');
+            const commoditySelect = document.getElementById('commoditySelect');
+            const dateSelect = document.getElementById('dateSelect');
+            
+            const selectedState = stateSelect.value;
+            const selectedDistrict = districtSelect.value;
+            const selectedMarket = marketSelect.value;
+            const selectedCommodity = commoditySelect.value;
+            const selectedDate = dateSelect.value;
+            
+            if (selectedCommodity && priceData[selectedCommodity]) {
+                const commodity = priceData[selectedCommodity];
+                
+                // Update text elements
+                document.getElementById('commodityName').textContent = selectedCommodity;
+                document.getElementById('predictedPrice').textContent = `Rs. ${commodity.predicted}`;
+                document.getElementById('currentPrice').textContent = `Rs. ${commodity.current}`;
+                document.getElementById('lastYearPrice').textContent = `Rs. ${commodity.lastYear}`;
+                document.getElementById('priceTrend').textContent = commodity.trend;
+                document.getElementById('productDescription').textContent = commodity.description;
+                document.getElementById('chartTitle').textContent = `${selectedCommodity} Price Trends`;
+                
+                // Update location info if available
+                if (selectedState && selectedDistrict && selectedMarket) {
+                    const locationText = `${selectedMarket}, ${selectedDistrict.charAt(0).toUpperCase() + selectedDistrict.slice(1)}, ${selectedState.charAt(0).toUpperCase() + selectedState.slice(1)}`;
+                    document.getElementById('locationText').textContent = locationText;
+                }
+                
+                // Update harvest date if available
+                if (selectedDate) {
+                    const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    document.getElementById('harvestDateText').textContent = `Prediction Date: ${formattedDate}`;
+                }
+                
+                // Update chart
+                updateChart(commodity.chartData, selectedCommodity);
+            }
+        }
+
+        // Reset price information
+        function resetPriceInfo() {
+            document.getElementById('commodityName').textContent = "Select a commodity";
+            document.getElementById('predictedPrice').textContent = "-";
+            document.getElementById('currentPrice').textContent = "-";
+            document.getElementById('lastYearPrice').textContent = "-";
+            document.getElementById('priceTrend').textContent = "-";
+            document.getElementById('productDescription').textContent = "Select a commodity to view predicted price";
+            document.getElementById('locationText').textContent = "Not specified";
+            document.getElementById('harvestDateText').textContent = "Select date for prediction";
+            document.getElementById('chartTitle').textContent = "Price Trends";
+            
+            // Reset chart
+            updateChart([0, 0, 0, 0, 0, 0, 0], "Select a commodity");
+        }
+
+        // Initialize chart
+        function initializeChart(data, commodityName) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: `${commodityName} Price (Rs.)`,
+                        data: data,
+                        borderColor: '#38d39f',
+                        borderWidth: 3,
+                        backgroundColor: 'rgba(56, 211, 159, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Rs. ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rs. ' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart with new data
+        function updateChart(data, commodityName) {
+            priceChart.data.datasets[0].data = data;
+            priceChart.data.datasets[0].label = `${commodityName} Price (Rs.)`;
+            priceChart.update();
+        }
+
+        // Add event listeners for all dropdowns to update price info when changed
+        document.getElementById('stateSelect').addEventListener('change', updatePriceInfo);
+        document.getElementById('districtSelect').addEventListener('change', updatePriceInfo);
+        document.getElementById('marketSelect').addEventListener('change', updatePriceInfo);
+        document.getElementById('commoditySelect').addEventListener('change', updatePriceInfo);
+        document.getElementById('dateSelect').addEventListener('change', updatePriceInfo);
+
+        document.querySelector('.action-button').addEventListener('click', function() {
+        const state = document.getElementById('stateSelect').value;
+        const district = document.getElementById('districtSelect').value;
+        const market = document.getElementById('marketSelect').value;
+        const commodity = document.getElementById('commoditySelect').value;
+        const date = document.getElementById('dateSelect').value.split("-");
+        
+        if (!state || !district || !market || !commodity || date.length !== 3) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        const url = `/predict/?state=${state}&district=${district}&market=${market}&commodity=${commodity}&year=${date[0]}&month=${date[1]}&day=${date[2]}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.predicted_price) {
+                    document.getElementById('predictedPrice').textContent = `Rs. ${data.predicted_price}`;
+                } else {
+                    alert("Error fetching prediction.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
+
+
+    </script>
+</body>
+</html>
